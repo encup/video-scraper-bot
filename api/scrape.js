@@ -9,18 +9,19 @@ router.get("/", async (req, res) => {
     return res.status(400).json({ status: false, message: "URL video tidak ditemukan." });
   }
 
-  const command = `yt-dlp -g --no-check-certificate --no-warnings "${videoUrl}"`;
+  const command = `yt-dlp -g --no-warnings "${videoUrl}"`;
 
   exec(command, (err, stdout, stderr) => {
     if (err || !stdout) {
-      return res.status(500).json({ status: false, message: "Gagal mengambil video." });
+      console.error("YT-DLP Error:", err || stderr);
+      return res.status(500).json({ status: false, message: "Gagal mengambil video. Mungkin link tidak valid atau butuh login." });
     }
 
     const links = stdout.trim().split("\n");
     return res.json({
       status: true,
       platform: detectPlatform(videoUrl),
-      judul: "Video berhasil ditemukan",
+      judul: "Video berhasil diambil",
       unduh: links[0]
     });
   });
